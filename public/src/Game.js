@@ -47,10 +47,13 @@ BasicGame.Game.prototype = {
 	create: function () {
 
 	   this.back = this.add.sprite(0,0,'background');
-       this.back.scale.x = s_width ;
-       this.back.scale.y = s_height ;
+       this.back.scale.x = 1 ;
+       this.back.scale.y = 1 ;
 
        this.planet = this.add.sprite(((this.game.world.width/2)-40),(s_height-80),'planet');
+       //this.planet = this.add.sprite(0,(s_height-80),'earth');
+       this.planet.scale.y = 1 ;
+       this.planet.scale.x = 1 ;
        this.physics.enable(this.planet, Phaser.Physics.ARCADE) ;
        //var w_ratio = 1920/(s_width) ;
        //var h_ratio = 144/w_ratio ;
@@ -116,8 +119,8 @@ BasicGame.Game.prototype = {
 
         bullet.reset(x_cor, 700) ;
         bullet.body.velocity.y = -1 ;
-        bullet.scale.x = 0.3 ;
-        bullet.scale.y = 0.3 ;
+        bullet.scale.x = 0.5 ;
+        bullet.scale.y = 0.05 ;
         //this.game.camera.follow(bullet);
         /**
 
@@ -149,7 +152,7 @@ BasicGame.Game.prototype = {
     },
 
     enemyHit : function(bullet, enemy){
-        bullet.kill() ;
+        //bullet.kill() ;
         enemy.kill() ;
         BasicGame.PLAYER_SCORE += 10 ;
         console.log("SCORE : "+ BasicGame.PLAYER_SCORE ); 
@@ -190,7 +193,8 @@ BasicGame.Game.prototype = {
 
         this.laserPool.forEachAlive(function(bullet){
             if(bullet.y <= 0.66*s_height){
-
+                bullet.scale.x = 0.3 ;
+                bullet.scale.y = 0.3 ;
                 bullet.body.velocity.y = -2000 ;
             }
             else{
