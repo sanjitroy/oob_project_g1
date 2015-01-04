@@ -36,7 +36,7 @@ BasicGame.Game.prototype = {
     
     preload: function(){
 
-        this.load.image('background','assets/starfield.png');
+        this.load.image('background','assets/back.jpg');
         this.load.image('earth','assets/earth.png');
         this.load.image('alien','assets/bullets.png');
         this.load.image('bullet','assets/blue_laser.png');
@@ -47,11 +47,11 @@ BasicGame.Game.prototype = {
 
 
 	create: function () {
-       /**
+       
 	   this.back = this.add.sprite(0,0,'background');
        this.back.scale.x = 1 ;
        this.back.scale.y = 1 ;
-       **/
+       
        this.planet = this.add.sprite(((this.game.world.width/2)-40),(s_height-80),'planet');
        //this.planet = this.add.sprite(0,(s_height-80),'earth');
        this.planet.scale.y = 1 ;
@@ -74,7 +74,7 @@ BasicGame.Game.prototype = {
        this.enemyPool.setAll('outOfBoundsKill', true) ;
        this.enemyPool.setAll('checkWorldBounds', true) ;
        this.nextEnemyAt = 0 ;
-       //this.enemyDelay = 5000 ;
+       this.enemyDelay = 5000 ;
 
        //this.shots = [] ;
        //blue laser creations 
@@ -116,9 +116,21 @@ BasicGame.Game.prototype = {
        this.score = this.add.text((this.game.world.width/2),(this.game.world.height-100),'XP : ',{
         font : '20px monospace', fill : '#fff', align : 'center'
        });
-
        this.score.anchor.setTo(0.5,0.5);
-    
+
+       this.score_l_bound = 0 ;
+       this.score_u_bound = 100 ;
+       this.levelUp = 0 ;
+       this.levelV = "" ;
+       this.io = 0 ;
+       this.levelNum =1 ;
+       this.levelText = this.add.text((this.game.world.width/2),(25),'Level 1 in \n'+ this.levelV,{
+        font : '20px monospace', fill : '#fff', align : 'center'
+       });
+       this.levelText.anchor.setTo(0.5,0.5);
+
+       this.announcement ;
+       this.anncExp = 0;
 	},
 
 	update: function () {
@@ -198,13 +210,13 @@ BasicGame.Game.prototype = {
 
     green_hit : function(g_bullet,enemy){
         enemy.kill() ;
-        BasicGame.PLAYER_SCORE += 5 ;
+        BasicGame.PLAYER_SCORE += 10 ;
     },
 
     red_hit : function(r_bullet,enemy){
         r_bullet.kill();
         enemy.kill();
-        BasicGame.PLAYER_SCORE += 15 ;
+        BasicGame.PLAYER_SCORE += 10 ;
     },
 
     planetHit : function(planet, enemy){
@@ -304,13 +316,33 @@ BasicGame.Game.prototype = {
 
     updateScores: function(){
         this.score.setText("XP : "+ BasicGame.PLAYER_SCORE );
-        if(BasicGame.PLAYER_SCORE >= 100 && BasicGame.PLAYER_SCORE <= 200){
+        if(BasicGame.PLAYER_SCORE >= this.score_l_bound && BasicGame.PLAYER_SCORE <= this.score_u_bound){
             //console.log("Level Up :D ") ;
-            BasicGame.ENEMY_DELAY = 1000 ;
+            this.levelUp = (this.score_u_bound - BasicGame.PLAYER_SCORE)/10 ;
+            //console.log(this.xcd);
+            this.levelV = "" ;
+            for(io=0;io<=this.levelUp;io++){
+                this.levelV += "+" ; 
+            }
+            //console.log(this.levelV);
+            this.levelText.setText("Level "+this.levelNum + " in \n"+ this.levelV);
+            //BasicGame.ENEMY_DELAY -= 20 ;
         }
-        else if(BasicGame.PLAYER_SCORE > 200 && BasicGame.PLAYER_SCORE <= 300){
-            //console.log("Level so very up XD ") ;
-            BasicGame.ENEMY_DELAY = 100 ;  
+        else {
+            console.log("Level up up up up up ... :D :D  ") ;
+            BasicGame.ENEMY_DELAY -= 20 ;
+            this.score_l_bound = this.score_u_bound ;
+            this.score_u_bound = this.score_l_bound + 100 ;
+            this.announcement = this.add.text((this.game.world.width/2),(this.game.world.height/2),'Level Up',{
+                font : '30px monospace', fill : '#fff', align : 'center'
+            });
+            this.levelNum++ ;
+            this.announcement.anchor.setTo(0.5,0.5);
+            this.anncExp = this.time.now + 5000 ;
+        }
+
+        if(this.anncExp > 0 && this.time.now > this.anncExp){
+            this.announcement.destroy() ;
         }
         
     },
