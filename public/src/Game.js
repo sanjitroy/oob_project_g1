@@ -39,17 +39,19 @@ BasicGame.Game.prototype = {
         this.load.image('background','assets/starfield.png');
         this.load.image('earth','assets/earth.png');
         this.load.image('alien','assets/bullets.png');
-        this.load.image('bullet','assets/blue_las1.png');
+        this.load.image('bullet','assets/blue_laser.png');
+        this.load.image('green_bullet', 'assets/green_laser.png');
+        this.load.image('red_bullet', 'assets/red_laser.png');
         this.load.image('planet', 'assets/planet.png')
     },
 
 
 	create: function () {
-
+       /**
 	   this.back = this.add.sprite(0,0,'background');
        this.back.scale.x = 1 ;
        this.back.scale.y = 1 ;
-
+       **/
        this.planet = this.add.sprite(((this.game.world.width/2)-40),(s_height-80),'planet');
        //this.planet = this.add.sprite(0,(s_height-80),'earth');
        this.planet.scale.y = 1 ;
@@ -75,6 +77,7 @@ BasicGame.Game.prototype = {
        //this.enemyDelay = 5000 ;
 
        //this.shots = [] ;
+       //blue laser creations 
        this.laserPool = this.add.group() ;
        this.laserPool.enableBody = true ;
        this.laserPool.physicsBodyType = Phaser.Physics.ARCADE ;
@@ -82,11 +85,40 @@ BasicGame.Game.prototype = {
 
        this.laserPool.setAll('outOfBoundsKill', true);
        this.laserPool.setAll('checkWorldBounds', true);
+
+
+       //green laser creations 
+       this.green_laserPool = this.add.group() ;
+       this.green_laserPool.enableBody = true ;
+       this.green_laserPool.physicsBodyType = Phaser.Physics.ARCADE ;
+       this.green_laserPool.createMultiple(100, 'green_bullet');
+
+       this.green_laserPool.setAll('outOfBoundsKill', true);
+       this.green_laserPool.setAll('checkWorldBounds', true);
+
+
+       //red laser creations 
+       this.red_laserPool = this.add.group() ;
+       this.red_laserPool.enableBody = true ;
+       this.red_laserPool.physicsBodyType = Phaser.Physics.ARCADE ;
+       this.red_laserPool.createMultiple(100, 'red_bullet');
+
+       this.red_laserPool.setAll('outOfBoundsKill', true);
+       this.red_laserPool.setAll('checkWorldBounds', true);
+
        this.nextShotAt = 0 ;
        this.shotDelay = 100 ;
 
+       this.laser_names = [this.laserPool,this.green_laserPool,this.red_laserPool];
        //pointer_1 = new Phaser.Pointer() ;
 
+       
+       this.score = this.add.text((this.game.world.width/2),(this.game.world.height-100),'XP : ',{
+        font : '20px monospace', fill : '#fff', align : 'center'
+       });
+
+       this.score.anchor.setTo(0.5,0.5);
+    
 	},
 
 	update: function () {
@@ -101,10 +133,14 @@ BasicGame.Game.prototype = {
 
         this.spawnEnemey();
 
-        this.enemy_gravity_check() ;
-        this.physics.arcade.overlap(this.laserPool, this.enemyPool, this.enemyHit, null, this); 
+        this.enemy_gravity_check();
+        this.physics.arcade.overlap(this.laserPool, this.enemyPool, this.enemyHit, null, this);
+        this.physics.arcade.overlap(this.green_laserPool, this.enemyPool, this.green_hit, null, this);
+        this.physics.arcade.overlap(this.red_laserPool, this.enemyPool, this.red_hit, null, this); 
         this.physics.arcade.overlap(this.planet, this.enemyPool, this.planetHit, null, this);
         //this.physics.arcade.overlap(this.enemyPool, this.enemyPool,this.collidingenemy, null);
+        
+        this.updateScores();
 	},
 
     fire : function(x_cor){
@@ -115,9 +151,9 @@ BasicGame.Game.prototype = {
 
         this.nextShotAt = this.time.now + this.shotDelay ;
 
-        var bullet = this.laserPool.getFirstExists(false); 
+        var bullet = this.laser_names[this.rnd.integerInRange(0,2)].getFirstExists(false); 
 
-        bullet.reset(x_cor, 700) ;
+        bullet.reset(x_cor, s_height-80) ;
         bullet.body.velocity.y = -1 ;
         bullet.scale.x = 0.5 ;
         bullet.scale.y = 0.05 ;
@@ -152,20 +188,23 @@ BasicGame.Game.prototype = {
     },
 
     enemyHit : function(bullet, enemy){
-        //bullet.kill() ;
+        bullet.kill() ;
         enemy.kill() ;
         BasicGame.PLAYER_SCORE += 10 ;
-        console.log("SCORE : "+ BasicGame.PLAYER_SCORE ); 
+        //console.log("SCORE : "+ BasicGame.PLAYER_SCORE ); 
         
-        if(BasicGame.PLAYER_SCORE >= 100 && BasicGame.PLAYER_SCORE <= 200){
-            console.log("Level Up :D ") ;
-            BasicGame.ENEMY_DELAY = 1000 ;
-        }
-        else if(BasicGame.PLAYER_SCORE > 200 && BasicGame.PLAYER_SCORE <= 300){
-            console.log("Level so very up XD ") ;
-            BasicGame.ENEMY_DELAY = 100 ;  
-        }
         
+    },
+
+    green_hit : function(g_bullet,enemy){
+        enemy.kill() ;
+        BasicGame.PLAYER_SCORE += 5 ;
+    },
+
+    red_hit : function(r_bullet,enemy){
+        r_bullet.kill();
+        enemy.kill();
+        BasicGame.PLAYER_SCORE += 15 ;
     },
 
     planetHit : function(planet, enemy){
@@ -192,6 +231,31 @@ BasicGame.Game.prototype = {
         **/
 
         this.laserPool.forEachAlive(function(bullet){
+            if(bullet.y <= 0.66*s_height){
+                bullet.scale.x = 0.3 ;
+                bullet.scale.y = 0.3 ;
+                bullet.body.velocity.y = -2000 ;
+            }
+            else{
+                bullet.body.velocity.y -= 1 ;   
+            }
+        });
+
+
+
+        this.green_laserPool.forEachAlive(function(bullet){
+            if(bullet.y <= 0.66*s_height){
+                bullet.scale.x = 0.3 ;
+                bullet.scale.y = 0.3 ;
+                bullet.body.velocity.y = -2000 ;
+            }
+            else{
+                bullet.body.velocity.y -= 1 ;   
+            }
+        });
+
+
+        this.red_laserPool.forEachAlive(function(bullet){
             if(bullet.y <= 0.66*s_height){
                 bullet.scale.x = 0.3 ;
                 bullet.scale.y = 0.3 ;
@@ -236,6 +300,19 @@ BasicGame.Game.prototype = {
                 //enemy.body.velocity.y += 1 ;   
             }
         });
+    },
+
+    updateScores: function(){
+        this.score.setText("XP : "+ BasicGame.PLAYER_SCORE );
+        if(BasicGame.PLAYER_SCORE >= 100 && BasicGame.PLAYER_SCORE <= 200){
+            //console.log("Level Up :D ") ;
+            BasicGame.ENEMY_DELAY = 1000 ;
+        }
+        else if(BasicGame.PLAYER_SCORE > 200 && BasicGame.PLAYER_SCORE <= 300){
+            //console.log("Level so very up XD ") ;
+            BasicGame.ENEMY_DELAY = 100 ;  
+        }
+        
     },
 
     render: function() {
