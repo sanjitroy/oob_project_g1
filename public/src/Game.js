@@ -38,11 +38,14 @@ BasicGame.Game.prototype = {
 
         this.load.image('background','assets/back.jpg');
         this.load.image('earth','assets/earth.png');
-        this.load.image('alien','assets/bullets.png');
+        //this.load.image('alien','assets/bullets.png');
+        this.load.image('alien','assets/enemy_red.png');
         this.load.image('bullet','assets/blue_laser.png');
         this.load.image('green_bullet', 'assets/green_laser.png');
         this.load.image('red_bullet', 'assets/red_laser.png');
-        this.load.image('planet', 'assets/planet.png')
+        this.load.image('planet', 'assets/planet.png');
+        this.load.image('blue_aliens', 'assets/enemy_blue.png');
+        this.load.image('green_aliens', 'assets/enemy_green.png');
     },
 
 
@@ -66,6 +69,7 @@ BasicGame.Game.prototype = {
        //this.planet.z = 100 ;
 
        //this.alien = this.add.sprite((200),(s_height/2),'alien');
+       //red enemy creations. 
        this.enemyPool = this.add.group();
        this.enemyPool.enableBody = true ;
        this.enemyPool.physicsBodyType = Phaser.Physics.ARCADE ;
@@ -75,6 +79,28 @@ BasicGame.Game.prototype = {
        this.enemyPool.setAll('checkWorldBounds', true) ;
        this.nextEnemyAt = 0 ;
        this.enemyDelay = 5000 ;
+
+       //blue enemy creations
+       this.blue_enemyPool = this.add.group();
+       this.blue_enemyPool.enableBody = true ;
+       this.blue_enemyPool.physicsBodyType = Phaser.Physics.ARCADE ;
+       this.blue_enemyPool.createMultiple(50, 'blue_aliens') ;
+
+       this.blue_enemyPool.setAll('outOfBoundsKill', true) ;
+       this.blue_enemyPool.setAll('checkWorldBounds', true) ;
+       this.nextblue_EnemyAt = 0 ;
+       this.blue_enemyDelay = 5000 ;
+
+       //green enemy creation 
+       this.green_enemyPool = this.add.group();
+       this.green_enemyPool.enableBody = true ;
+       this.green_enemyPool.physicsBodyType = Phaser.Physics.ARCADE ;
+       this.green_enemyPool.createMultiple(50, 'green_aliens') ;
+
+       this.green_enemyPool.setAll('outOfBoundsKill', true) ;
+       this.green_enemyPool.setAll('checkWorldBounds', true) ;
+       this.nextgreen_EnemyAt = 0 ;
+       this.green_enemyDelay = 5000 ;
 
        //this.shots = [] ;
        //blue laser creations 
@@ -146,10 +172,23 @@ BasicGame.Game.prototype = {
         this.spawnEnemey();
 
         this.enemy_gravity_check();
+
         this.physics.arcade.overlap(this.laserPool, this.enemyPool, this.enemyHit, null, this);
-        this.physics.arcade.overlap(this.green_laserPool, this.enemyPool, this.green_hit, null, this);
-        this.physics.arcade.overlap(this.red_laserPool, this.enemyPool, this.red_hit, null, this); 
+        this.physics.arcade.overlap(this.green_laserPool, this.enemyPool, this.enemyHit, null, this);
+        this.physics.arcade.overlap(this.red_laserPool, this.enemyPool, this.enemyHit, null, this);
+
+        this.physics.arcade.overlap(this.laserPool, this.blue_enemyPool, this.blue_hit, null, this);
+        this.physics.arcade.overlap(this.green_laserPool, this.blue_enemyPool, this.blue_hit, null, this);
+        this.physics.arcade.overlap(this.red_laserPool, this.blue_enemyPool, this.blue_hit, null, this);
+
+        this.physics.arcade.overlap(this.laserPool, this.green_enemyPool, this.green_hit, null, this);
+        this.physics.arcade.overlap(this.green_laserPool, this.green_enemyPool, this.green_hit, null, this);
+        this.physics.arcade.overlap(this.red_laserPool, this.green_enemyPool, this.green_hit, null, this);
+
         this.physics.arcade.overlap(this.planet, this.enemyPool, this.planetHit, null, this);
+        this.physics.arcade.overlap(this.planet, this.blue_enemyPool, this.planetHit, null, this);
+        this.physics.arcade.overlap(this.planet, this.green_enemyPool, this.planetHit, null, this);
+
         //this.physics.arcade.overlap(this.enemyPool, this.enemyPool,this.collidingenemy, null);
         
         this.updateScores();
@@ -192,11 +231,31 @@ BasicGame.Game.prototype = {
             //console.log("Creating enemies ... ")
             //console.log("Dead enemies .. " + this.enemyPool.countDead());
             enemy.reset(this.rnd.integerInRange(10,s_width-10), 0) ;
+            enemy.anchor.setTo(0.5,1);
             enemy.body.velocity.y = 30 ;
-            //bullet.scale.x = 0.3 ;
+            enemy.scale.x = 0.1 ;
             //bullet.scale.y = 0.3 ;
         }
 
+        if(this.nextblue_EnemyAt < this.time.now && this.blue_enemyPool.countDead() > 0){
+            //console.log("Getting new enemies .. ")
+            this.nextblue_EnemyAt = this.time.now + this.blue_enemyDelay ;
+
+            var blue_enemy = this.blue_enemyPool.getFirstExists(false) ;
+            blue_enemy.reset(this.rnd.integerInRange(10,s_width-10),0);
+            blue_enemy.anchor.setTo(0.5,1);
+            blue_enemy.body.velocity.y = 30 ;
+            blue_enemy.scale.x = 0.1 ;
+        }
+
+        if(this.nextgreen_EnemyAt < this.time.now && this.green_enemyPool.countDead() > 0){
+            this.nextgreen_EnemyAt = this.time.now + this.green_enemyDelay ;
+            var green_enemy = this.green_enemyPool.getFirstExists(false);
+            green_enemy.reset(this.rnd.integerInRange(10,s_width-10),0);
+            green_enemy.anchor.setTo(0.5,1);
+            green_enemy.body.velocity.y = 30 ;
+            green_enemy.scale.x = 0.1 ;
+        }
     },
 
     enemyHit : function(bullet, enemy){
@@ -210,10 +269,11 @@ BasicGame.Game.prototype = {
 
     green_hit : function(g_bullet,enemy){
         enemy.kill() ;
+        g_bullet.kill(); 
         BasicGame.PLAYER_SCORE += 10 ;
     },
 
-    red_hit : function(r_bullet,enemy){
+    blue_hit : function(r_bullet,enemy){
         r_bullet.kill();
         enemy.kill();
         BasicGame.PLAYER_SCORE += 10 ;
@@ -280,6 +340,11 @@ BasicGame.Game.prototype = {
     },
 
     enemy_gravity_check : function(){
+
+      this.enemyPool.forEachAlive(this.enemy_velocity_check);
+      this.green_enemyPool.forEachAlive(this.enemy_velocity_check);
+      this.blue_enemyPool.forEachAlive(this.enemy_velocity_check);
+      /**
         this.enemyPool.forEachAlive(function(enemy){
             if(enemy.y > 0.66*s_height){
 
@@ -312,6 +377,40 @@ BasicGame.Game.prototype = {
                 //enemy.body.velocity.y += 1 ;   
             }
         });
+      **/
+    },
+
+    enemy_velocity_check: function(enemy){
+        if(enemy.y > 0.66*s_height){
+
+                //enemy.body.velocity.y += 10 ;
+                var k=(s_height-enemy.y)/(enemy.x-(s_width/2));
+                if(enemy.x>s_width/2 && BasicGame.PLAYER_HEALTH>0){
+                    enemy.body.velocity.x = -1000/Math.sqrt(1+k*k);
+                    enemy.body.velocity.y = -k*enemy.body.velocity.x;
+
+                }
+                else
+                if(enemy.x<s_width/2 && BasicGame.PLAYER_HEALTH>0){
+                    enemy.body.velocity.x = 1000/Math.sqrt(1+k*k);
+                    enemy.body.velocity.y = -k*enemy.body.velocity.x;
+                }
+                else if(enemy.x==s_width/2 && BasicGame.PLAYER_HEALTH>0){
+                    enemy.body.velocity.y = 1000;
+
+                }
+                else if(enemy.x>s_width/2){
+                    enemy.body.velocity.x = 10/Math.sqrt(1+k*k);
+                    enemy.body.velocity.y = -k*enemy.body.velocity.x;
+                }
+                else{
+                    enemy.body.velocity.x = -10/Math.sqrt(1+k*k);
+                    enemy.body.velocity.y = -k*enemy.body.velocity.x;
+                }
+            }
+            else{
+                //enemy.body.velocity.y += 1 ;   
+            }
     },
 
     updateScores: function(){
@@ -329,8 +428,9 @@ BasicGame.Game.prototype = {
             //BasicGame.ENEMY_DELAY -= 20 ;
         }
         else {
-            console.log("Level up up up up up ... :D :D  ") ;
-            BasicGame.ENEMY_DELAY -= 20 ;
+            //console.log("Level up up up up up ... :D :D  ") ;
+            BasicGame.ENEMY_DELAY -= 500 ;
+            console.log("Enemy Delay : "+ BasicGame.ENEMY_DELAY);
             this.score_l_bound = this.score_u_bound ;
             this.score_u_bound = this.score_l_bound + 100 ;
             this.announcement = this.add.text((this.game.world.width/2),(this.game.world.height/2),'Level Up',{
