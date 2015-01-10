@@ -3,7 +3,9 @@ var s_height = window.innerHeight ;
 BasicGame = {
     PLAYER_HEALTH : 5,
     PLAYER_SCORE : 0 ,
-    ENEMY_DELAY : 5000
+    RED_ENEMY_DELAY : 500,
+    BLUE_ENEMY_DELAY : 600,
+    GREEN_ENEMY_DELAY : 1000
 
 };
 
@@ -38,7 +40,7 @@ BasicGame.Game.prototype = {
 
         this.load.image('background','assets/back.jpg');
         this.load.image('earth','assets/earth.png');
-        //this.load.image('alien','assets/bullets.png');
+        this.load.image('bull','assets/bullets.png');
         this.load.image('alien','assets/enemy_red.png');
         this.load.image('bullet','assets/blue_laser.png');
         this.load.image('green_bullet', 'assets/green_laser.png');
@@ -46,19 +48,22 @@ BasicGame.Game.prototype = {
         this.load.image('planet', 'assets/planet.png');
         this.load.image('blue_aliens', 'assets/enemy_blue.png');
         this.load.image('green_aliens', 'assets/enemy_green.png');
+        this.load.image('space_particles', 'assets/particle.png');
+        this.game.stage.backgroundColor = '#1E1E1E';
     },
 
 
 	create: function () {
        
-	   this.back = this.add.sprite(0,0,'background');
-       this.back.scale.x = 1 ;
-       this.back.scale.y = 1 ;
+	   //this.back = this.add.sprite(0,0,'background');
+       //this.back.scale.x = 1 ;
+       //this.back.scale.y = 1 ;
+       this.sparticle = this.add.sprite((this.game.world.width/2),(this.game.world.height/2),'space_particles');
        
        this.planet = this.add.sprite(((this.game.world.width/2)-40),(s_height-80),'planet');
        //this.planet = this.add.sprite(0,(s_height-80),'earth');
-       this.planet.scale.y = 1 ;
-       this.planet.scale.x = 1 ;
+       this.planet.scale.y = 0.5 ;
+       this.planet.scale.x = 0.5 ;
        this.physics.enable(this.planet, Phaser.Physics.ARCADE) ;
        //var w_ratio = 1920/(s_width) ;
        //var h_ratio = 144/w_ratio ;
@@ -157,6 +162,8 @@ BasicGame.Game.prototype = {
 
        this.announcement ;
        this.anncExp = 0;
+
+
 	},
 
 	update: function () {
@@ -225,42 +232,46 @@ BasicGame.Game.prototype = {
         if(this.nextEnemyAt < this.time.now && this.enemyPool.countDead() > 0){
             
            
-            this.nextEnemyAt = this.time.now + BasicGame.ENEMY_DELAY ;
+            this.nextEnemyAt = this.time.now + BasicGame.RED_ENEMY_DELAY ;
 
             var enemy = this.enemyPool.getFirstExists(false); 
             //console.log("Creating enemies ... ")
             //console.log("Dead enemies .. " + this.enemyPool.countDead());
-            enemy.reset(this.rnd.integerInRange(10,s_width-10), 0) ;
+            enemy.reset(this.rnd.integerInRange(10,s_width-10), 0, 2) ;
             enemy.anchor.setTo(0.5,1);
             enemy.body.velocity.y = 30 ;
-            enemy.scale.x = 0.1 ;
+            enemy.scale.x = 0.5 ;
+            enemy.scale.y = 0.5 ;
             //bullet.scale.y = 0.3 ;
         }
 
         if(this.nextblue_EnemyAt < this.time.now && this.blue_enemyPool.countDead() > 0){
             //console.log("Getting new enemies .. ")
-            this.nextblue_EnemyAt = this.time.now + this.blue_enemyDelay ;
+            this.nextblue_EnemyAt = this.time.now + BasicGame.BLUE_ENEMY_DELAY ;
 
             var blue_enemy = this.blue_enemyPool.getFirstExists(false) ;
             blue_enemy.reset(this.rnd.integerInRange(10,s_width-10),0);
             blue_enemy.anchor.setTo(0.5,1);
             blue_enemy.body.velocity.y = 30 ;
-            blue_enemy.scale.x = 0.1 ;
+            blue_enemy.scale.x = 0.5 ;
+            blue_enemy.scale.y = 0.5 ;
         }
 
         if(this.nextgreen_EnemyAt < this.time.now && this.green_enemyPool.countDead() > 0){
-            this.nextgreen_EnemyAt = this.time.now + this.green_enemyDelay ;
+            this.nextgreen_EnemyAt = this.time.now + BasicGame.GREEN_ENEMY_DELAY ;
             var green_enemy = this.green_enemyPool.getFirstExists(false);
             green_enemy.reset(this.rnd.integerInRange(10,s_width-10),0);
             green_enemy.anchor.setTo(0.5,1);
             green_enemy.body.velocity.y = 30 ;
-            green_enemy.scale.x = 0.1 ;
+            green_enemy.scale.x = 0.5 ;
+            green_enemy.scale.y = 0.5 ;
         }
     },
 
     enemyHit : function(bullet, enemy){
         bullet.kill() ;
-        enemy.kill() ;
+        //enemy.kill() ;
+        enemy.damage(1); 
         BasicGame.PLAYER_SCORE += 10 ;
         //console.log("SCORE : "+ BasicGame.PLAYER_SCORE ); 
         
@@ -430,7 +441,7 @@ BasicGame.Game.prototype = {
         else {
             //console.log("Level up up up up up ... :D :D  ") ;
             BasicGame.ENEMY_DELAY -= 500 ;
-            console.log("Enemy Delay : "+ BasicGame.ENEMY_DELAY);
+            //console.log("Enemy Delay : "+ BasicGame.ENEMY_DELAY);
             this.score_l_bound = this.score_u_bound ;
             this.score_u_bound = this.score_l_bound + 100 ;
             this.announcement = this.add.text((this.game.world.width/2),(this.game.world.height/2),'Level Up',{
