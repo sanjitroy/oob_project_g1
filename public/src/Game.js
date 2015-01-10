@@ -1,11 +1,11 @@
 var s_width = window.innerWidth ;
 var s_height = window.innerHeight ;
 BasicGame = {
-    PLAYER_HEALTH : 5,
+    PLAYER_HEALTH : 10,
     PLAYER_SCORE : 0 ,
     RED_ENEMY_DELAY : 500,
     BLUE_ENEMY_DELAY : 600,
-    GREEN_ENEMY_DELAY : 1000
+    GREEN_ENEMY_DELAY : 900
 
 };
 
