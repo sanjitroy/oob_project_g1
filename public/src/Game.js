@@ -5,7 +5,8 @@ BasicGame = {
     PLAYER_SCORE : 0 ,
     RED_ENEMY_DELAY : 500,
     BLUE_ENEMY_DELAY : 600,
-    GREEN_ENEMY_DELAY : 900
+    GREEN_ENEMY_DELAY : 900,
+	SPARTICLE_ENEMY_DELAY : 100
 
 };
 
@@ -48,7 +49,7 @@ BasicGame.Game.prototype = {
         this.load.image('planet', 'assets/planet.png');
         this.load.image('blue_aliens', 'assets/enemy_blue.png');
         this.load.image('green_aliens', 'assets/enemy_green.png');
-        this.load.image('space_particles', 'assets/particle.png');
+        this.load.image('space_particles', 'assets/particles.png');
         this.game.stage.backgroundColor = '#1E1E1E';
     },
 
@@ -58,8 +59,16 @@ BasicGame.Game.prototype = {
 	   //this.back = this.add.sprite(0,0,'background');
        //this.back.scale.x = 1 ;
        //this.back.scale.y = 1 ;
-       this.sparticle = this.add.sprite((this.game.world.width/2),(this.game.world.height/2),'space_particles');
-       
+       //this.sparticle = this.add.sprite((this.game.world.width/2),(this.game.world.height/2),'space_particles');
+       this.sparticle = this.add.group();
+	   this.sparticle.enableBody = true ;
+	   this.sparticle.physicsBodyType = Phaser.Physics.ARCADE ;
+	   this.sparticle.createMultiple(1000 , 'space_particles' ) ;
+	   this.nextSparticleAt = 0;
+	   
+	   this.sparticle.setAll( 'outOfBoundsKill' , true ) ;
+	   this.sparticle.setAll( 'checkWorldBounds' , true ) ;
+	   
        this.planet = this.add.sprite(((this.game.world.width/2)-40),(s_height-80),'planet');
        //this.planet = this.add.sprite(0,(s_height-80),'earth');
        this.planet.scale.y = 0.5 ;
@@ -173,6 +182,8 @@ BasicGame.Game.prototype = {
             this.fire(this.input.x);
             //this.enemy(this.input.x);
         }
+		
+		this.updateParticle();
 
         this.gravity_check();
 
@@ -199,8 +210,28 @@ BasicGame.Game.prototype = {
         //this.physics.arcade.overlap(this.enemyPool, this.enemyPool,this.collidingenemy, null);
         
         this.updateScores();
+		
 	},
+	
+	updateParticle : function() {
+		if(this.nextSparticleAt < this.time.now && this.sparticle.countDead() > 0){
+            
+           
+            this.nextSparticleAt = this.time.now + BasicGame.SPARTICLE_ENEMY_DELAY ;
 
+            var spart = this.sparticle.getFirstExists(false); 
+            //console.log("Creating enemies ... ")
+            //console.log("Dead enemies .. " + this.enemyPool.countDead());
+            spart.reset( s_height , s_width ) ;
+            //spart.anchor.setTo(0.5,0.5);
+			spart.body.velocity.x = this.rnd.integerInRange(-50,50) ;
+            spart.body.velocity.y = -this.rnd.integerInRange(0,50) ;
+            //enemy.scale.x = 0.5 ;
+            //enemy.scale.y = 0.5 ;
+            //bullet.scale.y = 0.3 ;
+        }
+	},
+	
     fire : function(x_cor){
 
         if(this.nextShotAt > this.time.now ){
