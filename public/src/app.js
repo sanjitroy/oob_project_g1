@@ -4,7 +4,7 @@ window.onload = function() {
   //  We did it in a window.onload event, but you can do it anywhere (requireJS load, anonymous function, jQuery dom ready, - whatever floats your boat)
   var s_width = window.innerWidth ;
   var s_height = window.innerHeight ;
-  var game = new Phaser.Game(s_width, s_height, Phaser.CANVAS, 'gameContainer');
+  var game = new Phaser.Game(s_width, s_height, Phaser.CANVAS, 'gameContainer',null, true, true );
 
   //  Add the States your game has.
   //  You don't have to do this in the html, it could be done in your Boot state too, but for simplicity I'll keep it here.
@@ -14,6 +14,6 @@ window.onload = function() {
   game.state.add('Game', BasicGame.Game);
 
   //  Now start the Boot state.
-  game.state.start('Game');
+  game.state.start('Boot');
 
 };

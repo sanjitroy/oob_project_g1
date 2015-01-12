@@ -8,6 +8,7 @@
 */
 var s_width = window.innerWidth ;
 var s_height = window.innerHeight ;
+/**
 BasicGame = {
     PLAYER_HEALTH : 10,
     PLAYER_SCORE : 0 ,
@@ -24,6 +25,7 @@ BasicGame = {
     SCORE_POINTS : 10,
     GRAVITY_FIELD : 0.66 
 };
+**/
 
 BasicGame.Game = function (game) {
 
@@ -54,9 +56,9 @@ BasicGame.Game = function (game) {
 BasicGame.Game.prototype = {
     
     preload: function(){
-
+      /**
         //this.load.image('background','assets/back.jpg');
-
+        this.load.image('background','assets/back1.png');
         //this.load.image('earth','assets/earth.png');
 
         this.load.image('bull','assets/bullets.png');
@@ -74,12 +76,15 @@ BasicGame.Game.prototype = {
         this.load.image('green_aliens', 'assets/enemy_green.png');
         this.load.image('space_particles', 'assets/particles.png');
         this.game.stage.backgroundColor = '#1E1E1E';
+        **/
     },
 
 
 	create: function () {
        
-	   //this.back = this.add.sprite(0,0,'background');
+	     this.back = this.add.tileSprite(0,0,this.game.width, this.game.height,'background');
+       //this.back.autoScroll(0,10);
+       //this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'space');
        //this.back.scale.x = 1 ;
        //this.back.scale.y = 1 ;
 

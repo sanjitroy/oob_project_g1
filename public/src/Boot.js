@@ -1,24 +1,43 @@
-BasicGame = {
+
+var BasicGame = {
 
     /* Here we've just got some global level vars that persist regardless of State swaps */
-    score: 0,
+  //  score: 0,
 
     /* If the music in your game needs to play through-out a few State swaps, then you could reference it here */
-    music: null,
+   // music: null,
 
     /* Your game can check BasicGame.orientated in internal loops to know if it should pause or not */
-    orientated: false
+    //orientated: false
+    PLAYER_HEALTH : 10,
+    PLAYER_SCORE : 0 ,
+    RED_ENEMY_DELAY : 5000,
+    BLUE_ENEMY_DELAY : 5000,
+    GREEN_ENEMY_DELAY : 5000,
+    ENEMY_INIT_SPEED : 30,
+    RED_ENEMY_HEALTH : 1,
+    BLUE_ENEMY_HEALTH : 1 ,
+    GREEN_ENEMY_HEALTH : 1,
+    SPARTICLE_ENEMY_DELAY : 2000,
+    SHOT_DELAY : 100,
+    ENEMY_DAMAGE : 1,
+    SCORE_POINTS : 10,
+    GRAVITY_FIELD : 0.66 
 
 };
 
+
+
 BasicGame.Boot = function (game) {
+
 };
 
 BasicGame.Boot.prototype = {
 
     init: function () {
 
-        this.input.maxPointers = 1;
+        this.input.maxPointers = 2;
+        /**
         this.stage.disableVisibilityChange = true;
 
         if (this.game.device.desktop)
@@ -39,14 +58,15 @@ BasicGame.Boot.prototype = {
             this.scale.enterIncorrectOrientation.add(this.enterIncorrectOrientation, this);
             this.scale.leaveIncorrectOrientation.add(this.leaveIncorrectOrientation, this);
         }
+        **/
 
     },
 
     preload: function () {
 
         //  Here we load the assets required for our preloader (in this case a background and a loading bar)
-        this.load.image('preloaderBackground', 'images/preloader_background.jpg');
-        this.load.image('preloaderBar', 'images/preloadr_bar.png');
+        this.load.image('preloaderBackground', 'assets/logo.png');
+        this.load.image('preloaderBar', 'assets/logo_back.png');
 
     },
 
