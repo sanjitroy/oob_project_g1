@@ -1,3 +1,11 @@
+/*
+* List of changes :
+* Sanjit -
+* 1. Changed updateParticles function().
+* 2. Changed background particle delay. 
+*
+* Marchuso -
+*/
 var s_width = window.innerWidth ;
 var s_height = window.innerHeight ;
 BasicGame = {
@@ -6,12 +14,15 @@ BasicGame = {
     RED_ENEMY_DELAY : 5000,
     BLUE_ENEMY_DELAY : 5000,
     GREEN_ENEMY_DELAY : 5000,
+    ENEMY_INIT_SPEED : 30,
     RED_ENEMY_HEALTH : 1,
     BLUE_ENEMY_HEALTH : 1 ,
     GREEN_ENEMY_HEALTH : 1,
-    SPARTICLE_ENEMY_DELAY : 100
-
-
+    SPARTICLE_ENEMY_DELAY : 2000,
+    SHOT_DELAY : 100,
+    ENEMY_DAMAGE : 1,
+    SCORE_POINTS : 10,
+    GRAVITY_FIELD : 0.66 
 };
 
 BasicGame.Game = function (game) {
@@ -44,9 +55,9 @@ BasicGame.Game.prototype = {
     
     preload: function(){
 
-        this.load.image('background','assets/back.jpg');
+        //this.load.image('background','assets/back.jpg');
 
-        this.load.image('earth','assets/earth.png');
+        //this.load.image('earth','assets/earth.png');
 
         this.load.image('bull','assets/bullets.png');
         this.load.image('alien','assets/enemy_red.png');
@@ -73,16 +84,18 @@ BasicGame.Game.prototype = {
        //this.back.scale.y = 1 ;
 
        //this.sparticle = this.add.sprite((this.game.world.width/2),(this.game.world.height/2),'space_particles');
+       //SParticle group for background particle addition.
        this.sparticle = this.add.group();
-	   this.sparticle.enableBody = true ;
-	   this.sparticle.physicsBodyType = Phaser.Physics.ARCADE ;
-	   this.sparticle.createMultiple(1000 , 'space_particles' ) ;
-	   this.nextSparticleAt = 0;
+	     this.sparticle.enableBody = true ;
+	     this.sparticle.physicsBodyType = Phaser.Physics.ARCADE ;
+	     this.sparticle.createMultiple(100 , 'space_particles' ) ;
+	     this.nextSparticleAt = 0;
 	   
-	   this.sparticle.setAll( 'outOfBoundsKill' , true ) ;
-	   this.sparticle.setAll( 'checkWorldBounds' , true ) ;
-	   
-     this.planet = this.add.sprite(((this.game.world.width/2)),(s_height-40),'planet');  
+	     this.sparticle.setAll( 'outOfBoundsKill' , true ) ;
+	     this.sparticle.setAll( 'checkWorldBounds' , true ) ;
+
+	     //PLanet sprite loading 
+       this.planet = this.add.sprite(((this.game.world.width/2)),(this.game.world.height-40),'planet');  
        //this.planet = this.add.sprite(0,(s_height-80),'earth');
        this.planet.scale.y = 1 ;
        this.planet.scale.x = 1 ;
@@ -101,12 +114,12 @@ BasicGame.Game.prototype = {
        this.enemyPool = this.add.group();
        this.enemyPool.enableBody = true ;
        this.enemyPool.physicsBodyType = Phaser.Physics.ARCADE ;
-       this.enemyPool.createMultiple(50, 'alien') ;
+       this.enemyPool.createMultiple(100, 'alien') ;
 
        this.enemyPool.setAll('outOfBoundsKill', true) ;
        this.enemyPool.setAll('checkWorldBounds', true) ;
        this.nextEnemyAt = 0 ;
-       this.enemyDelay = 5000 ;
+       //this.enemyDelay = 5000 ;
 
        //blue enemy creations
        this.blue_enemyPool = this.add.group();
@@ -117,7 +130,7 @@ BasicGame.Game.prototype = {
        this.blue_enemyPool.setAll('outOfBoundsKill', true) ;
        this.blue_enemyPool.setAll('checkWorldBounds', true) ;
        this.nextblue_EnemyAt = 0 ;
-       this.blue_enemyDelay = 5000 ;
+       //this.blue_enemyDelay = 5000 ;
 
        //green enemy creation 
        this.green_enemyPool = this.add.group();
@@ -128,7 +141,7 @@ BasicGame.Game.prototype = {
        this.green_enemyPool.setAll('outOfBoundsKill', true) ;
        this.green_enemyPool.setAll('checkWorldBounds', true) ;
        this.nextgreen_EnemyAt = 0 ;
-       this.green_enemyDelay = 5000 ;
+       //this.green_enemyDelay = 5000 ;
 
        //this.shots = [] ;
        //blue laser creations 
@@ -192,7 +205,7 @@ BasicGame.Game.prototype = {
 
 
        this.nextShotAt = 0 ;
-       this.shotDelay = 100 ;
+       //this.shotDelay = 100 ;
 
        this.laser_names = [this.laserPool,this.green_laserPool,this.red_laserPool,this.yellow_laserPool,this.orange_laserPool,this.violet_laserPool];
        //pointer_1 = new Phaser.Pointer() ;
@@ -218,10 +231,10 @@ BasicGame.Game.prototype = {
        this.anncExp = 0;
 
 
-       this.emtr = this.game.add.emitter(0,0,100);
+       this.emtr = this.game.add.emitter(0,0,20);
        this.emtr.makeParticles('space_particles') ;
-       this.emtr.minParticleScale = 0.5;
-       this.emtr.maxParticleScale = 0.5;
+       //this.emtr.minParticleScale = 0.5;
+       //this.emtr.maxParticleScale = 0.5;
        this.emtr.physicsBodyType = Phaser.Physics.ARCADE ;
        this.emtr.gravity = 200 ;
 
@@ -237,13 +250,14 @@ BasicGame.Game.prototype = {
             this.fire(this.input.x);
             //this.enemy(this.input.x);
         }
-
+        /**
         if(this.shotDelay>100){
           this.shotDelay-- ;
         }
         else{
           this.shotDelay = 100 ;
         }
+        **/
 		    this.updateParticle();
 
         this.gravity_check();
@@ -292,9 +306,9 @@ BasicGame.Game.prototype = {
             var spart = this.sparticle.getFirstExists(false); 
             //console.log("Creating enemies ... ")
             //console.log("Dead enemies .. " + this.enemyPool.countDead());
-            spart.reset( s_height , s_width ) ;
+            spart.reset( this.game.world.width/2 , this.game.world.height-80 ) ;
             //spart.anchor.setTo(0.5,0.5);
-			spart.body.velocity.x = this.rnd.integerInRange(-50,50) ;
+			      spart.body.velocity.x = this.rnd.integerInRange(-50,50) ;
             spart.body.velocity.y = -this.rnd.integerInRange(0,50) ;
             //enemy.scale.x = 0.5 ;
             //enemy.scale.y = 0.5 ;
@@ -308,14 +322,14 @@ BasicGame.Game.prototype = {
             return ;
         }
 
-        this.nextShotAt = this.time.now + this.shotDelay ;
+        this.nextShotAt = this.time.now + BasicGame.SHOT_DELAY ;
         //this.shotDelay += 5 ;
         
       
          //var bullet = this.laser_names[this.rnd.integerInRange(0,2)].getFirstExists(false); 
         var bullet = this.laser_names[this.rnd.integerInRange(0,5)].getFirstExists(false); 
         bullet.anchor.setTo(0.5,0);
-        bullet.reset(x_cor, s_height-80) ;
+        bullet.reset(x_cor, this.game.world.height) ;
         bullet.body.velocity.y = -1 ;
         bullet.scale.x = 0.5 ;
         bullet.scale.y = 0.05 ;
@@ -342,9 +356,9 @@ BasicGame.Game.prototype = {
             //console.log("Creating enemies ... ")
             //console.log("Dead enemies .. " + this.enemyPool.countDead());
             //parameters - x,y,health
-            enemy.reset(this.rnd.integerInRange(10,s_width-10), 0, BasicGame.RED_ENEMY_HEALTH) ;
+            enemy.reset(this.rnd.integerInRange(10,this.game.world.width-10), 0, BasicGame.RED_ENEMY_HEALTH) ;
             enemy.anchor.setTo(0.5,1);
-            enemy.body.velocity.y = 30 ;
+            enemy.body.velocity.y = BasicGame.ENEMY_INIT_SPEED ;
             enemy.scale.x = 0.5 ;
             enemy.scale.y = 0.5 ;
             //bullet.scale.y = 0.3 ;
@@ -355,9 +369,9 @@ BasicGame.Game.prototype = {
             this.nextblue_EnemyAt = this.time.now + BasicGame.BLUE_ENEMY_DELAY ;
 
             var blue_enemy = this.blue_enemyPool.getFirstExists(false) ;
-            blue_enemy.reset(this.rnd.integerInRange(10,s_width-10),0,BasicGame.BLUE_ENEMY_HEALTH);
+            blue_enemy.reset(this.rnd.integerInRange(10,this.game.world.width-10),0,BasicGame.BLUE_ENEMY_HEALTH);
             blue_enemy.anchor.setTo(0.5,1);
-            blue_enemy.body.velocity.y = 30 ;
+            blue_enemy.body.velocity.y = BasicGame.ENEMY_INIT_SPEED ;
             blue_enemy.scale.x = 0.5 ;
             blue_enemy.scale.y = 0.5 ;
         }
@@ -365,9 +379,9 @@ BasicGame.Game.prototype = {
         if(this.nextgreen_EnemyAt < this.time.now && this.green_enemyPool.countDead() > 0){
             this.nextgreen_EnemyAt = this.time.now + BasicGame.GREEN_ENEMY_DELAY ;
             var green_enemy = this.green_enemyPool.getFirstExists(false);
-            green_enemy.reset(this.rnd.integerInRange(10,s_width-10),0,BasicGame.GREEN_ENEMY_HEALTH);
+            green_enemy.reset(this.rnd.integerInRange(10,this.game.world.width-10),0,BasicGame.GREEN_ENEMY_HEALTH);
             green_enemy.anchor.setTo(0.5,1);
-            green_enemy.body.velocity.y = 30 ;
+            green_enemy.body.velocity.y = BasicGame.ENEMY_INIT_SPEED ;
             green_enemy.scale.x = 0.5 ;
             green_enemy.scale.y = 0.5 ;
         }
@@ -376,11 +390,11 @@ BasicGame.Game.prototype = {
     enemyHit : function(bullet, enemy){
         this.emtr.x = bullet.x ;
         this.emtr.y = bullet.y ;
-        this.emtr.start(true, 1000, null, 10);
+        this.emtr.start(true, 500, null, 10);
         bullet.kill() ;
         //enemy.kill() ;
-        enemy.damage(1); 
-        BasicGame.PLAYER_SCORE += 10 ;
+        enemy.damage(BasicGame.ENEMY_DAMAGE); 
+        BasicGame.PLAYER_SCORE += BasicGame.SCORE_POINTS ;
         //console.log("SCORE : "+ BasicGame.PLAYER_SCORE ); 
         
         
@@ -389,24 +403,26 @@ BasicGame.Game.prototype = {
     green_hit : function(g_bullet,enemy){
         this.emtr.x = g_bullet.x ;
         this.emtr.y = g_bullet.y ;
-        this.emtr.start(true, 1000, null, 10);
-        enemy.damage(1) ;
+        this.emtr.start(true, 500, null, 10);
+        enemy.damage(BasicGame.ENEMY_DAMAGE) ;
         g_bullet.kill(); 
-        BasicGame.PLAYER_SCORE += 10 ;
+        BasicGame.PLAYER_SCORE += BasicGame.SCORE_POINTS ;
     },
 
     blue_hit : function(r_bullet,enemy){
         this.emtr.x = r_bullet.x ;
         this.emtr.y = r_bullet.y ;
-        this.emtr.start(true, 1000, null, 10);
+        this.emtr.start(true, 500, null, 10);
         r_bullet.kill();
-        enemy.damage(1);
-        BasicGame.PLAYER_SCORE += 10 ;
+        enemy.damage(BasicGame.ENEMY_DAMAGE);
+        BasicGame.PLAYER_SCORE += BasicGame.SCORE_POINTS ;
     },
 
     planetHit : function(planet, enemy){
         //console.log("planet hit") ;
         BasicGame.PLAYER_HEALTH -- ;
+        this.planet.scale.x -= 0.1 ;
+        this.planet.scale.y -= 0.1 ;
         console.log("PLAYER HEALTH : " + BasicGame.PLAYER_HEALTH) ;
         if(BasicGame.PLAYER_HEALTH == 0){
             planet.kill() ;
@@ -428,7 +444,7 @@ BasicGame.Game.prototype = {
         **/
 
         this.laserPool.forEachAlive(function(bullet){
-            if(bullet.y <= 0.66*s_height){
+            if(bullet.y <= BasicGame.GRAVITY_FIELD*s_height){
                 bullet.scale.x = 0.3 ;
                 bullet.scale.y = 0.3 ;
                 bullet.body.velocity.y = -2000 ;
@@ -441,7 +457,7 @@ BasicGame.Game.prototype = {
 
 
         this.green_laserPool.forEachAlive(function(bullet){
-            if(bullet.y <= 0.66*s_height){
+            if(bullet.y <= BasicGame.GRAVITY_FIELD*s_height){
                 bullet.scale.x = 0.3 ;
                 bullet.scale.y = 0.3 ;
                 bullet.body.velocity.y = -2000 ;
@@ -453,7 +469,7 @@ BasicGame.Game.prototype = {
 
 
         this.red_laserPool.forEachAlive(function(bullet){
-            if(bullet.y <= 0.66*s_height){
+            if(bullet.y <= BasicGame.GRAVITY_FIELD*s_height){
                 bullet.scale.x = 0.3 ;
                 bullet.scale.y = 0.3 ;
                 bullet.body.velocity.y = -2000 ;
@@ -464,7 +480,7 @@ BasicGame.Game.prototype = {
         });
 
         this.yellow_laserPool.forEachAlive(function(bullet){
-            if(bullet.y <= 0.66*s_height){
+            if(bullet.y <= BasicGame.GRAVITY_FIELD*s_height){
                 bullet.scale.x = 0.3 ;
                 bullet.scale.y = 0.3 ;
                 bullet.body.velocity.y = -2000 ;
@@ -475,7 +491,7 @@ BasicGame.Game.prototype = {
         });
 
         this.violet_laserPool.forEachAlive(function(bullet){
-            if(bullet.y <= 0.66*s_height){
+            if(bullet.y <= BasicGame.GRAVITY_FIELD*s_height){
                 bullet.scale.x = 0.3 ;
                 bullet.scale.y = 0.3 ;
                 bullet.body.velocity.y = -2000 ;
@@ -486,7 +502,7 @@ BasicGame.Game.prototype = {
         });
 
         this.orange_laserPool.forEachAlive(function(bullet){
-            if(bullet.y <= 0.66*s_height){
+            if(bullet.y <= BasicGame.GRAVITY_FIELD*s_height){
                 bullet.scale.x = 0.3 ;
                 bullet.scale.y = 0.3 ;
                 bullet.body.velocity.y = -2000 ;
@@ -539,7 +555,7 @@ BasicGame.Game.prototype = {
     },
 
     enemy_velocity_check: function(enemy){
-        if(enemy.y > 0.66*s_height){
+        if(enemy.y > BasicGame.GRAVITY_FIELD*s_height){
 
                 //enemy.body.velocity.y += 10 ;
                 var k=(s_height-enemy.y)/(enemy.x-(s_width/2));
