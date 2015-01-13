@@ -22,7 +22,8 @@ var BasicGame = {
     SHOT_DELAY : 100,
     ENEMY_DAMAGE : 1,
     SCORE_POINTS : 10,
-    GRAVITY_FIELD : 0.66 
+    GRAVITY_FIELD : 0.66,
+    LEVEL : 1
 
 };
 

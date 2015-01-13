@@ -57,6 +57,7 @@ BasicGame.Preloader.prototype = {
 
 		//	Once the load has finished we disable the crop because we're going to sit in the update loop for a short while as the music decodes
 		this.preloadBar.cropEnabled = false;
+		this.start_time = this.time.now ;
 		//this.state.start('Game') ;
 
 	},
@@ -78,7 +79,7 @@ BasicGame.Preloader.prototype = {
 			this.state.start('MainMenu');
 		}
 		**/
-		if(this.time.now > 4000){
+		if((this.time.now-this.start_time) > 5000){
 			this.state.start('Game') ;
 		}
 

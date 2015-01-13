@@ -245,6 +245,7 @@ BasicGame.Game.prototype = {
 
        this.lvlUp = false ;
        this.lvlDwn = false ;
+       //this.arrcheck = [this.fire,this.updateParticle] ;
 
 	},
 
@@ -252,6 +253,7 @@ BasicGame.Game.prototype = {
         //if(pointer_1.isDown){
             //console.log("POinter 1 is down");
         if(this.input.activePointer.isDown){
+            
             this.fire(this.input.x);
             //this.enemy(this.input.x);
         }
@@ -264,7 +266,7 @@ BasicGame.Game.prototype = {
         }
         **/
 		    this.updateParticle();
-
+        //this.particle_updaters.BasicGame.Level() ;
         this.gravity_check();
 
         this.spawnEnemey();
@@ -302,6 +304,7 @@ BasicGame.Game.prototype = {
 		
 	},
 	
+  
 	updateParticle : function() {
 		if(this.nextSparticleAt < this.time.now && this.sparticle.countDead() > 0){
             
