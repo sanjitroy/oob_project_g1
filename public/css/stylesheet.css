@@ -1,3 +1,8 @@
+@font-face {
+    font-family: infinity,
+    src: url("/assets/fonts/Infinty.ttf")
+}
+
 body {
     margin: 0px 0px 1px 0px; /* the extra 1px allows the iOS inner/outer check to work */
     background: #272822;
@@ -13,7 +18,7 @@ body {
     background-image: url(../images/orientation.jpg); 
     background-repeat: no-repeat;
     background-position: center;
-    background-color: #272822;
+    background-color: #000000;
     z-index: 999;
     display: none;
 }

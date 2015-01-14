@@ -9,6 +9,8 @@ var BasicGame = {
 
     /* Your game can check BasicGame.orientated in internal loops to know if it should pause or not */
     //orientated: false
+    GAME_HEIGHT : 1500,
+    GAME_WIDTH : 1000,
     PLAYER_HEALTH : 10,
     PLAYER_SCORE : 0 ,
     RED_ENEMY_DELAY : 5000,
@@ -24,8 +26,8 @@ var BasicGame = {
     SCORE_POINTS : 10,
     GRAVITY_FIELD : 0.66,
     LEVEL : 1,
-    LEVEL_BOUND : 100,
-    ALLOWED_BULLETS : 1,
+    LEVEL_BOUND : 1000,
+    ALLOWED_BULLETS : 0,
     GAME_DEFEAT : 0 
 
 };
@@ -41,6 +43,17 @@ BasicGame.Boot.prototype = {
     init: function () {
 
         this.input.maxPointers = 2;
+        this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        BasicGame.GAME_HEIGHT = this.game.height ;
+        BasicGame.GAME_WIDTH = this.game.width ;
+        this.scale.setScreenSize(true);
+        /**
+        this.scale.minWidth = 480;
+        this.scale.minHeight = 720;
+        this.scale.maxWidth = 1024;
+        this.scale.maxHeight = 1536;
+        this.scale.setScreenSize(true);
+        //this.scale.startFullScreen();
         /**
         this.stage.disableVisibilityChange = true;
 

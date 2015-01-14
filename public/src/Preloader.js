@@ -15,9 +15,14 @@ BasicGame.Preloader.prototype = {
 		//	These are the assets we loaded in Boot.js
 		//	A nice sparkly background and a loading progress bar
 		
-		this.preloadBar = this.add.sprite(300, 0, 'preloaderBar');
-		this.background = this.add.sprite(300, 0, 'preloaderBackground');
-
+		this.preloadBar = this.add.sprite(this.game.width/2, this.game.height/2, 'preloaderBar');
+		this.preloadBar.anchor.setTo(0.5,0.5) ;
+		this.preloadBar.scale.x = 1 ;
+		this.preloadBar.scale.y = 1 ;
+		this.background = this.add.sprite(this.game.width/2, this.game.height/2, 'preloaderBackground');
+		this.background.anchor.setTo(0.5,0.5) ;
+		this.background.scale.x = BasicGame.GAME_WIDTH/1000 ;
+		this.background.scale.y = BasicGame.GAME_HEIGHT/1000 ;
 		//	This sets the preloadBar sprite as a loader sprite.
 		//	What that does is automatically crop the sprite from 0 to full-width
 		//	as the files below are loaded in.
@@ -25,6 +30,9 @@ BasicGame.Preloader.prototype = {
 
 
 		//this.load.image('background','assets/back.jpg');
+
+		this.load.image('logoeffects', 'assets/logo-effects.png');
+		this.load.image('playbut', 'assets/play.png');
         this.load.image('background','assets/back1.png');
         //this.load.image('earth','assets/earth.png');
 
@@ -42,7 +50,7 @@ BasicGame.Preloader.prototype = {
         this.load.image('blue_aliens', 'assets/enemy_blue.png');
         this.load.image('green_aliens', 'assets/enemy_green.png');
         this.load.image('space_particles', 'assets/particles.png');
-        this.game.stage.backgroundColor = '#1E1E1E';
+        //this.game.stage.backgroundColor = '#1E1E1E';
 		//	Here we load the rest of the assets our game needs.
 		//	As this is just a Project Template I've not provided these assets, the lines below won't work as the files themselves will 404, they are just an example of use.
 		//this.load.image('titlepage', 'images/title.jpg');
@@ -57,6 +65,10 @@ BasicGame.Preloader.prototype = {
 
 		//	Once the load has finished we disable the crop because we're going to sit in the update loop for a short while as the music decodes
 		this.preloadBar.cropEnabled = false;
+		this.Effects = this.add.sprite(this.game.width/2, this.game.height/2, 'logoeffects');
+		this.Effects.anchor.setTo(0.5,0.5) ;
+		this.Effects.scale.x = BasicGame.GAME_WIDTH/1000 ;
+		this.Effects.scale.y = BasicGame.GAME_HEIGHT/1000 ;
 		this.start_time = this.time.now ;
 		//this.state.start('Game') ;
 
@@ -80,7 +92,7 @@ BasicGame.Preloader.prototype = {
 		}
 		**/
 		if((this.time.now-this.start_time) > 5000){
-			this.state.start('Game') ;
+			this.state.start('MainMenu') ;
 		}
 
 	}
