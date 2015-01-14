@@ -23,7 +23,10 @@ var BasicGame = {
     ENEMY_DAMAGE : 1,
     SCORE_POINTS : 10,
     GRAVITY_FIELD : 0.66,
-    LEVEL : 1
+    LEVEL : 1,
+    LEVEL_BOUND : 100,
+    ALLOWED_BULLETS : 1,
+    GAME_DEFEAT : 0 
 
 };
 

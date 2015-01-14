@@ -217,7 +217,7 @@ BasicGame.Game.prototype = {
 
        
        this.score = this.add.text((this.game.world.width/2),(this.game.world.height-100),'XP : ',{
-        font : '20px monospace', fill : '#fff', align : 'center'
+        font : '20px monospace', fill : '#15C6FF', align : 'center'
        });
        this.score.anchor.setTo(0.5,0.5);
 
@@ -228,7 +228,7 @@ BasicGame.Game.prototype = {
        this.io = 0 ;
        this.levelNum =1 ;
        this.levelText = this.add.text((this.game.world.width/2),(25),'Level 1 in \n'+ this.levelV,{
-        font : '20px monospace', fill : '#fff', align : 'center'
+        font : '20px monospace', fill : '#15C6FF', align : 'center'
        });
        this.levelText.anchor.setTo(0.5,0.5);
 
@@ -246,6 +246,11 @@ BasicGame.Game.prototype = {
        this.lvlUp = false ;
        this.lvlDwn = false ;
        //this.arrcheck = [this.fire,this.updateParticle] ;
+
+       this.allw_bulls = 0 ;
+       this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),' ',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        }); ;
 
 	},
 
@@ -335,7 +340,7 @@ BasicGame.Game.prototype = {
         
       
          //var bullet = this.laser_names[this.rnd.integerInRange(0,2)].getFirstExists(false); 
-        var bullet = this.laser_names[this.rnd.integerInRange(0,5)].getFirstExists(false); 
+        var bullet = this.laser_names[this.rnd.integerInRange(0,BasicGame.ALLOWED_BULLETS)].getFirstExists(false); 
         bullet.anchor.setTo(0.5,0);
         bullet.reset(x_cor, this.game.world.height) ;
         bullet.body.velocity.y = -1 ;
@@ -597,7 +602,7 @@ BasicGame.Game.prototype = {
 
     updateScores: function(){
         this.score.setText("XP : "+ BasicGame.PLAYER_SCORE );
-        if(BasicGame.PLAYER_SCORE >= this.score_l_bound && BasicGame.PLAYER_SCORE <= this.score_u_bound){
+        if(BasicGame.PLAYER_SCORE <= BasicGame.LEVEL_BOUND){
             //console.log("Level Up :D ") ;
             /**
             this.levelUp = (this.score_u_bound - BasicGame.PLAYER_SCORE)/10 ;
@@ -610,62 +615,298 @@ BasicGame.Game.prototype = {
             this.levelText.setText("Level "+this.levelNum + " in \n"+ this.levelV);
             //BasicGame.ENEMY_DELAY -= 20 ;
             **/
-            this.levelText.setText("Level "+this.levelNum );
+            this.levelText.setText("Enemy vesrion v" + BasicGame.LEVEL+".0-stable" );
         }
         else {
-            //console.log("Level up up up up up ... :D :D  ") ;
-            if(this.levelNum <= 25){
-              if(this.lvlUp == false){
-                this.lvlDwn = false ;
-                this.lvlUp = true ;
-                BasicGame.RED_ENEMY_HEALTH++ ;
-                BasicGame.BLUE_ENEMY_HEALTH++ ;
-                BasicGame.GREEN_ENEMY_HEALTH++ ;
-                console.log("Level Up .. "+ BasicGame.GREEN_ENEMY_HEALTH) ;
-              }
-              BasicGame.RED_ENEMY_DELAY /= 1.05 ;
-              BasicGame.BLUE_ENEMY_DELAY /= 1.05 ;
-              BasicGame.GREEN_ENEMY_DELAY /= 1.05;
-              console.log("Speed increase ... ") ;
-            }
-            else if(this.levelNum >25 && this.levelNum <=50){
-              if(this.lvlDwn == false){
-                this.lvlUp = false ;
-                this.lvlDwn = true ;
-                BasicGame.RED_ENEMY_HEALTH++ ;
-                BasicGame.BLUE_ENEMY_HEALTH++ ;
-                BasicGame.GREEN_ENEMY_HEALTH++ ;
-                console.log("Level Up .. "+ BasicGame.GREEN_ENEMY_HEALTH) ;
-              }
-              BasicGame.RED_ENEMY_DELAY *= 1.05 ;
-              BasicGame.GREEN_ENEMY_DELAY *= 1.05;
-              BasicGame.BLUE_ENEMY_DELAY *= 1.05 ;
-              console.log("Speed decrease ") ;
-              //this.levelNum = 0;
-            }
-            else{
-              this.levelNum = 0;
-            }
-            //console.log("RED : " + BasicGame.RED_ENEMY_DELAY );
+            this.levelUpdate() ;
             
-            //console.log("BLUE : " + BasicGame.BLUE_ENEMY_DELAY );
-           
-            //console.log("GREEN : " + BasicGame.GREEN_ENEMY_DELAY );
-            //console.log("Enemy Delay : "+ BasicGame.ENEMY_DELAY);
-            this.score_l_bound = this.score_u_bound ;
-            this.score_u_bound = this.score_l_bound + 100 ;
-            this.announcement = this.add.text((this.game.world.width/2),(this.game.world.height/2),'Level Up',{
-                font : '30px monospace', fill : '#fff', align : 'center'
-            });
-            this.levelNum++ ;
-            this.announcement.anchor.setTo(0.5,0.5);
-            this.anncExp = this.time.now + 5000 ;
         }
 
         if(this.anncExp > 0 && this.time.now > this.anncExp){
             this.announcement.destroy() ;
+            this.updatelog.destroy() ;
         }
         
+    },
+
+    levelUpdate: function(){
+      this.announcement = this.add.text((this.game.world.width/2),(this.game.world.height/2),'Enemy updated',{
+                font : '30px monospace', fill : '#15C6FF', align : 'center'
+            });
+      this.updatelog.destroy() ;
+      this.announcement.anchor.setTo(0.5,0.5) ;
+      this.anncExp = this.time.now + 5000 ;
+
+      if(BasicGame.PLAYER_SCORE < 200){
+        this.updatelog = this.add.text(10,this.game.world.height-10,'Update Log : \n' + 'Red enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'left'
+        });
+        this.updatelog.anchor.setTo(0,1) ;
+        BasicGame.LEVEL = 2 ;
+        BasicGame.LEVEL_BOUND = 200 ;
+        BasicGame.RED_ENEMY_DELAY = 4000 ;
+        //this.allw_bulls = 1 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 300){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 3 ;
+        BasicGame.LEVEL_BOUND = 300 ;
+        BasicGame.RED_ENEMY_DELAY = 3000 ;
+        //this.allw_bulls = 2 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 400){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 4 ;
+        BasicGame.LEVEL_BOUND = 400 ;
+        BasicGame.RED_ENEMY_DELAY = 2000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 500){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 5 ;
+        BasicGame.LEVEL_BOUND = 500 ;
+        BasicGame.RED_ENEMY_DELAY = 1000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 600){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 6 ;
+        BasicGame.LEVEL_BOUND = 600 ;
+        BasicGame.RED_ENEMY_DELAY = 500 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 700){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies build back to normal \n'+'Blue enemies build time decreased \n'+ 'Red enemies chasis made harder' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 7 ;
+        BasicGame.LEVEL_BOUND = 700 ;
+        BasicGame.RED_ENEMY_DELAY = 5000 ;
+        BasicGame.RED_ENEMY_HEALTH = 2 ;
+        BasicGame.BLUE_ENEMY_DELAY = 4000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 800){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Blue enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 8 ;
+        BasicGame.LEVEL_BOUND = 800 ;
+        BasicGame.BLUE_ENEMY_DELAY = 3000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 900){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Blue enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 9 ;
+        BasicGame.LEVEL_BOUND = 900 ;
+        BasicGame.BLUE_ENEMY_DELAY = 2000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1000){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Blue enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 10 ;
+        BasicGame.LEVEL_BOUND = 1000 ;
+        BasicGame.BLUE_ENEMY_DELAY = 1000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1100){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Blue enemies build time decreased.' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 11 ;
+        BasicGame.LEVEL_BOUND = 1100 ;
+        BasicGame.BLUE_ENEMY_DELAY = 500 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1200){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Blue enemies build back to normal \n'+'Green enemies build time decreased \n'+ 'Blue enemies chasis made harder' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 12 ;
+        BasicGame.LEVEL_BOUND = 1200 ;
+        BasicGame.BLUE_ENEMY_DELAY = 5000 ;
+        BasicGame.BLUE_ENEMY_HEALTH = 2 ;
+        BasicGame.GREEN_ENEMY_DELAY = 4000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1300){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Green enemies build time decreased \n' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 13 ;
+        BasicGame.LEVEL_BOUND = 1300 ;
+        BasicGame.GREEN_ENEMY_DELAY = 3000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1400){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Green enemies build time decreased \n' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 14 ;
+        BasicGame.LEVEL_BOUND = 1400 ;
+        BasicGame.GREEN_ENEMY_DELAY = 2000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1500){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Green enemies build time decreased \n' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 15 ;
+        BasicGame.LEVEL_BOUND = 1500 ;
+        BasicGame.GREEN_ENEMY_DELAY = 1000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1600){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Green enemies build time decreased \n' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 16 ;
+        BasicGame.LEVEL_BOUND = 1600 ;
+        BasicGame.GREEN_ENEMY_DELAY = 500 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1700){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Green enemies build back to normal \n'+ 'Green enemies chasis made harder' ,{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 17 ;
+        BasicGame.LEVEL_BOUND = 1700 ;
+        BasicGame.GREEN_ENEMY_DELAY = 5000 ;
+        BasicGame.GREEN_ENEMY_HEALTH = 2 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1800){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 18 ;
+        BasicGame.LEVEL_BOUND = 1800 ;
+        BasicGame.RED_ENEMY_HEALTH = 4 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 1900){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 19 ;
+        BasicGame.LEVEL_BOUND = 1900 ;
+        BasicGame.BLUE_ENEMY_HEALTH = 4 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 2000){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 20 ;
+        BasicGame.LEVEL_BOUND = 2000 ;
+        BasicGame.GREEN_ENEMY_HEALTH = 4 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 2100){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 21 ;
+        BasicGame.LEVEL_BOUND = 2100 ;
+        BasicGame.RED_ENEMY_DELAY = 4000 ;
+        BasicGame.BLUE_ENEMY_DELAY = 4000 ;
+        BasicGame.GREEN_ENEMY_DELAY = 4000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 2200){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 22 ;
+        BasicGame.LEVEL_BOUND = 2200 ;
+        BasicGame.RED_ENEMY_DELAY = 3000 ;
+        BasicGame.BLUE_ENEMY_DELAY = 3000 ;
+        BasicGame.GREEN_ENEMY_DELAY = 3000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 2300){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 23 ;
+        BasicGame.LEVEL_BOUND = 2300 ;
+        BasicGame.RED_ENEMY_DELAY = 2000 ;
+        BasicGame.BLUE_ENEMY_DELAY = 2000 ;
+        BasicGame.GREEN_ENEMY_DELAY = 2000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 2400){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 24 ;
+        BasicGame.LEVEL_BOUND = 2400 ;
+        BasicGame.RED_ENEMY_DELAY = 1000 ;
+        BasicGame.BLUE_ENEMY_DELAY = 1000 ;
+        BasicGame.GREEN_ENEMY_DELAY = 1000 ;
+      }
+
+      else if(BasicGame.PLAYER_SCORE < 2500){
+        this.updatelog = this.add.text((this.game.world.width/2),((this.game.world.height/2)+30),'Update Log : \n' + 'Red enemies powered up \n',{
+                font : '15px monospace', fill : '#15C6FF', align : 'center'
+        });
+        this.updatelog.anchor.setTo(0.5,0.5) ;
+        BasicGame.LEVEL = 25 ;
+        BasicGame.LEVEL_BOUND = 2500 ;
+        BasicGame.RED_ENEMY_DELAY = 500 ;
+        BasicGame.BLUE_ENEMY_DELAY = 500 ;
+        BasicGame.GREEN_ENEMY_DELAY = 500 ;
+      }
+
+      else{
+        BasicGame.PLAYER_SCORE = 0 ;
+        BasicGame.GAME_DEFEAT += 1 ;
+        BasicGame.LEVEL = 1 ;
+        BasicGame.LEVEL_BOUND = 100 ;
+        BasicGame.RED_ENEMY_DELAY = 5000 ;
+        BasicGame.BLUE_ENEMY_DELAY = 5000 ;
+        BasicGame.GREEN_ENEMY_DELAY = 5000 ;
+        BasicGame.RED_ENEMY_HEALTH = 1 ;
+        BasicGame.BLUE_ENEMY_HEALTH = 1 ;
+        BasicGame.GREEN_ENEMY_HEALTH = 1 ;
+        BasicGame.ALLOWED_BULLETS = 0 ;
+      }
     },
 
     render: function() {
